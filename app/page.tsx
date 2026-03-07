@@ -9,7 +9,7 @@ import { useLang } from '@/lib/lang';
 import dynamic from 'next/dynamic';
 const PestAlert = dynamic(() => import('@/components/PestAlert'), { ssr: false });
 
-interface SoilReport { n: number; p: number; k: number; ph: number; moisture: number; location: string; created_at: string; recommendations?: { topCrops?: { name: string }[] }; }
+interface SoilReport { n?: number; p?: number; k?: number; nitrogen?: number; phosphorus?: number; potassium?: number; ph: number; moisture: number; location: string; created_at: string; recommendations?: { topCrops?: { name: string }[] }; }
 interface DiseaseReport { disease_name: string; severity: string; created_at: string; }
 
 // Landing page shown to guests
@@ -155,9 +155,9 @@ export default function Dashboard() {
   const greetEmoji = hour < 12 ? '🌅' : hour < 17 ? '☀️' : '🌙';
 
   const npk = soilReport ? [
-    { label: 'N', value: soilReport.n, max: 140, color: '#22c55e' },
-    { label: 'P', value: soilReport.p, max: 140, color: '#f59e0b' },
-    { label: 'K', value: soilReport.k, max: 140, color: '#60a5fa' },
+    { label: 'N', value: soilReport.n ?? soilReport.nitrogen ?? 0, max: 140, color: '#22c55e' },
+    { label: 'P', value: soilReport.p ?? soilReport.phosphorus ?? 0, max: 140, color: '#f59e0b' },
+    { label: 'K', value: soilReport.k ?? soilReport.potassium ?? 0, max: 140, color: '#60a5fa' },
   ] : [];
 
   const severityColor = (s: string) => s === 'High' ? '#f87171' : s === 'Medium' ? '#fcd34d' : '#4ade80';
