@@ -3,6 +3,7 @@ import AuthGuard from '@/components/AuthGuard';
 
 import { useState, useRef } from 'react';
 import { supabase, isSupabaseEnabled } from '@/lib/supabase';
+import { getActiveFarmerId } from '@/lib/farmer-auth';
 import type { DiseaseResult } from '@/lib/types';
 
 export default function DiseasePage() {
@@ -34,7 +35,7 @@ export default function DiseasePage() {
       if (!res.ok) throw new Error('AI analysis failed');
       const data: DiseaseResult = await res.json();
       setResult(data);
-      const farmerId = localStorage.getItem('farmer_id');
+      const farmerId = await getActiveFarmerId();
       if (isSupabaseEnabled && supabase && farmerId) {
         await supabase.from('disease_reports').insert([{ farmer_id: farmerId, disease_name: data.diseaseName, severity: data.severity, actions: data.immediateActions, treatments: data.treatments }]);
       } else {
@@ -54,7 +55,7 @@ export default function DiseasePage() {
 
   return (
     <AuthGuard>
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="app-light min-h-screen relative overflow-hidden">
       <div className="orb w-72 h-72 -top-20 -left-20" style={{ background: '#f59e0b' }} />
       <div className="orb w-48 h-48 bottom-24 -right-12" style={{ background: '#22c55e', animationDelay: '3s' }} />
 
@@ -71,7 +72,7 @@ export default function DiseasePage() {
           className="rounded-2xl mb-4 overflow-hidden cursor-pointer transition-all"
           style={{
             border: `2px dashed ${dragging ? '#22c55e' : 'rgba(34,197,94,0.25)'}`,
-            background: dragging ? 'rgba(34,197,94,0.06)' : 'rgba(6,26,13,0.6)',
+            background: dragging ? 'rgba(34,197,94,0.06)' : 'rgba(255,255,255,0.78)',
             minHeight: preview ? undefined : 180,
           }}>
           {preview ? (
@@ -145,7 +146,7 @@ export default function DiseasePage() {
               </p>
               <div className="space-y-3">
                 {result.treatments.map((t, i) => (
-                  <div key={i} className="rounded-xl p-3.5" style={{ background: 'rgba(6,26,13,0.6)', border: '1px solid rgba(34,197,94,0.1)' }}>
+                  <div key={i} className="rounded-xl p-3.5" style={{ background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(21,128,61,0.1)' }}>
                     <div className="flex items-center justify-between mb-1.5">
                       <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{t.name}</span>
                       <div className="flex items-center gap-1.5">
@@ -169,7 +170,7 @@ export default function DiseasePage() {
                   window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
                 }}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold"
-                style={{ background: 'rgba(37,211,102,0.12)', color: '#25d366', border: '1px solid rgba(37,211,102,0.3)' }}>
+                style={{ background: 'rgba(37,211,102,0.1)', color: '#15803d', border: '1px solid rgba(21,128,61,0.18)' }}>
                 📲 Share on WhatsApp
               </button>
               <button onClick={() => { setPreview(null); setResult(null); }}

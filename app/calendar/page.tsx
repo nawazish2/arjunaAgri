@@ -73,7 +73,7 @@ export default function CalendarPage() {
 
   return (
     <AuthGuard>
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="app-light min-h-screen relative overflow-hidden">
       <div className="orb w-64 h-64 -top-16 -right-16" style={{ background: '#22c55e' }} />
       <div className="orb w-48 h-48 bottom-24 -left-12" style={{ background: '#c084fc', animationDelay: '2s' }} />
       <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-8 page-enter">
@@ -86,7 +86,7 @@ export default function CalendarPage() {
             {Object.entries(CALENDARS).map(([key, c]) => (
               <button key={key} onClick={() => setCrop(key)}
                 className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
-                style={{ background: crop === key ? 'rgba(34,197,94,0.15)' : 'rgba(6,26,13,0.6)', border: `1px solid ${crop === key ? '#22c55e' : 'rgba(34,197,94,0.1)'}`, color: crop === key ? '#4ade80' : 'var(--text-secondary)' }}>
+                style={{ background: crop === key ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.86)', border: `1px solid ${crop === key ? '#22c55e' : 'rgba(21,128,61,0.1)'}`, color: crop === key ? '#166534' : 'var(--text-secondary)' }}>
                 <span>{c.icon}</span> {key.charAt(0).toUpperCase() + key.slice(1)}
               </button>
             ))}

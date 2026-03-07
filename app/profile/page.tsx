@@ -3,6 +3,7 @@ import AuthGuard from '@/components/AuthGuard';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase, isSupabaseEnabled } from '@/lib/supabase';
+import { clearCachedFarmerProfile, getActiveFarmerId, getActiveFarmerProfile, readCachedFarmerProfile, writeCachedFarmerProfile } from '@/lib/farmer-auth';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -16,29 +17,28 @@ export default function ProfilePage() {
   const [pincodeMsg, setPincodeMsg] = useState('');
 
   useEffect(() => {
-    const farmerId = localStorage.getItem('farmer_id');
-    if (!farmerId) return; // AuthGuard handles redirect
-    const name = localStorage.getItem('farmer_name') || '';
-    setFarmer(f => ({ ...f, name }));
     const fetchProfile = async () => {
+      const farmerId = await getActiveFarmerId();
+      if (!farmerId) return;
+
       if (isSupabaseEnabled && supabase) {
-        const [fp, sr, dr] = await Promise.all([
-          supabase.from('farmers').select('*').eq('id', farmerId).single(),
+        const [profile, sr, dr] = await Promise.all([
+          getActiveFarmerProfile(),
           supabase.from('soil_reports').select('id', { count: 'exact' }).eq('farmer_id', farmerId),
           supabase.from('disease_reports').select('id', { count: 'exact' }).eq('farmer_id', farmerId),
         ]);
-        if (fp.data) setFarmer(fp.data);
+        if (profile) setFarmer((f) => ({ ...f, ...profile }));
         setSoilCount(sr.count || 0);
         setDiseaseCount(dr.count || 0);
-      } else {
-        const p = localStorage.getItem('farmer_profile');
-        if (p) setFarmer(JSON.parse(p));
-        // Count from localStorage
-        const sh = localStorage.getItem('soil_history');
-        if (sh) setSoilCount(JSON.parse(sh).length);
-        const dr = localStorage.getItem('latest_disease');
-        if (dr) setDiseaseCount(1);
+        return;
       }
+
+      const profile = await getActiveFarmerProfile();
+      if (profile) setFarmer((f) => ({ ...f, ...profile }));
+      const sh = localStorage.getItem('soil_history');
+      if (sh) setSoilCount(JSON.parse(sh).length);
+      const dr = localStorage.getItem('latest_disease');
+      if (dr) setDiseaseCount(1);
     };
     fetchProfile();
   }, [router]);
@@ -68,29 +68,27 @@ export default function ProfilePage() {
 
   const save = async () => {
     setLoading(true);
-    const farmerId = localStorage.getItem('farmer_id');
     try {
+      const farmerId = await getActiveFarmerId();
       if (isSupabaseEnabled && supabase && farmerId && !farmerId.startsWith('local_')) {
         await supabase.from('farmers').update({ name: farmer.name, village: farmer.village, state: farmer.state, language: farmer.language }).eq('id', farmerId);
       }
-      localStorage.setItem('farmer_name', farmer.name);
-      localStorage.setItem('farmer_profile', JSON.stringify(farmer));
+      const cached = readCachedFarmerProfile();
+      writeCachedFarmerProfile({ ...(cached ?? {}), ...farmer, id: farmerId || cached?.id || `local_${Date.now()}` });
       setSaved(true); setEditing(false);
       setTimeout(() => setSaved(false), 2000);
     } finally { setLoading(false); }
   };
 
-  const logout = () => {
-    localStorage.removeItem('farmer_id');
-    localStorage.removeItem('farmer_name');
-    localStorage.removeItem('farmer_profile');
-    if (isSupabaseEnabled && supabase) supabase.auth.signOut();
+  const logout = async () => {
+    clearCachedFarmerProfile();
+    if (isSupabaseEnabled && supabase) await supabase.auth.signOut();
     router.push('/register');
   };
 
   return (
     <AuthGuard>
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="app-light min-h-screen relative overflow-hidden">
       <div className="orb w-64 h-64 -top-16 -right-16" style={{ background: '#22c55e' }} />
       <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-8 page-enter">
         <div className="flex items-center justify-between mb-6">
@@ -139,7 +137,7 @@ export default function ProfilePage() {
               {editing ? (
                 <input value={(farmer as Record<string, string>)[key]} onChange={e => setFarmer({ ...farmer, [key]: e.target.value })} className="input-field" />
               ) : (
-                <p className="px-3 py-2.5 rounded-xl text-sm" style={{ background: 'rgba(6,26,13,0.6)', color: 'var(--text-primary)' }}>
+                <p className="px-3 py-2.5 rounded-xl text-sm" style={{ background: 'rgba(255,255,255,0.86)', color: 'var(--text-primary)', border: '1px solid rgba(21,128,61,0.08)' }}>
                   {(farmer as Record<string, string>)[key] || '—'}
                 </p>
               )}
@@ -169,7 +167,7 @@ export default function ProfilePage() {
                 )}
               </div>
             ) : (
-              <p className="px-3 py-2.5 rounded-xl text-sm" style={{ background: 'rgba(6,26,13,0.6)', color: 'var(--text-primary)' }}>
+              <p className="px-3 py-2.5 rounded-xl text-sm" style={{ background: 'rgba(255,255,255,0.86)', color: 'var(--text-primary)', border: '1px solid rgba(21,128,61,0.08)' }}>
                 {farmer.pincode || '—'}
               </p>
             )}
@@ -184,7 +182,7 @@ export default function ProfilePage() {
             {editing ? (
               <input value={farmer.district} onChange={e => setFarmer({ ...farmer, district: e.target.value })} className="input-field" placeholder="Auto-filled from pincode" />
             ) : (
-              <p className="px-3 py-2.5 rounded-xl text-sm" style={{ background: 'rgba(6,26,13,0.6)', color: 'var(--text-primary)' }}>
+              <p className="px-3 py-2.5 rounded-xl text-sm" style={{ background: 'rgba(255,255,255,0.86)', color: 'var(--text-primary)', border: '1px solid rgba(21,128,61,0.08)' }}>
                 {farmer.district || '—'}
               </p>
             )}
@@ -196,7 +194,7 @@ export default function ProfilePage() {
             {editing ? (
               <input value={farmer.state} onChange={e => setFarmer({ ...farmer, state: e.target.value })} className="input-field" placeholder="Auto-filled from pincode" />
             ) : (
-              <p className="px-3 py-2.5 rounded-xl text-sm" style={{ background: 'rgba(6,26,13,0.6)', color: 'var(--text-primary)' }}>
+              <p className="px-3 py-2.5 rounded-xl text-sm" style={{ background: 'rgba(255,255,255,0.86)', color: 'var(--text-primary)', border: '1px solid rgba(21,128,61,0.08)' }}>
                 {farmer.state || '—'}
               </p>
             )}
@@ -208,7 +206,7 @@ export default function ProfilePage() {
                 {([{ v: 'en', l: '🇬🇧 English' }, { v: 'hi', l: '🇮🇳 हिंदी' }] as const).map(({ v, l }) => (
                   <button key={v} type="button" onClick={() => setFarmer({ ...farmer, language: v })}
                     className="flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all"
-                    style={{ background: farmer.language === v ? '#22c55e' : 'rgba(6,26,13,0.6)', color: farmer.language === v ? '#061a0d' : 'var(--text-muted)', border: `1px solid ${farmer.language === v ? '#22c55e' : 'rgba(34,197,94,0.15)'}` }}>
+                    style={{ background: farmer.language === v ? '#22c55e' : 'rgba(255,255,255,0.86)', color: farmer.language === v ? '#061a0d' : 'var(--text-muted)', border: `1px solid ${farmer.language === v ? '#22c55e' : 'rgba(21,128,61,0.12)'}` }}>
                     {l}
                   </button>
                 ))}

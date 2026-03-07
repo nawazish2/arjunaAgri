@@ -68,7 +68,7 @@ export default function MarketPage(){
 
   return (
     <AuthGuard>
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="app-light min-h-screen relative overflow-hidden">
       <div className="orb w-72 h-72 -top-16 -left-16" style={{background:'#22c55e'}}/>
       <div className="orb w-48 h-48 bottom-24 -right-12" style={{background:'#f59e0b',animationDelay:'2s'}}/>
       <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-8 page-enter">
@@ -76,7 +76,7 @@ export default function MarketPage(){
         <p className="text-sm mb-5" style={{color:'var(--text-secondary)'}}>MSP 2024-25 rates & government schemes for farmers</p>
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-5 p-1 rounded-2xl" style={{background:'rgba(6,26,13,0.8)',border:'1px solid rgba(34,197,94,0.15)'}}>
+        <div className="flex gap-1 mb-5 p-1 rounded-2xl" style={{background:'rgba(255,255,255,0.82)',border:'1px solid rgba(21,128,61,0.12)', boxShadow:'0 10px 28px rgba(15,23,42,0.05)'}}>
           {[{k:'msp',l:'📈 MSP Prices'},{k:'schemes',l:'🏛️ Gov Schemes'}].map(({k,l})=>(
             <button key={k} onClick={()=>setTab(k as 'msp'|'schemes')}
               className="flex-1 py-2.5 text-sm font-semibold rounded-xl transition-all"

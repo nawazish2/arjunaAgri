@@ -1,20 +1,31 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { isFarmerAuthenticated, subscribeToFarmerAuth } from '@/lib/farmer-auth';
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
   const [status, setStatus] = useState<'loading' | 'auth' | 'guest'>('loading');
 
   useEffect(() => {
-    const id = localStorage.getItem('farmer_id');
-    if (!id) {
-      setStatus('guest');
-    } else {
-      setStatus('auth');
-    }
+    let mounted = true;
+
+    isFarmerAuthenticated()
+      .then((authenticated) => {
+        if (mounted) setStatus(authenticated ? 'auth' : 'guest');
+      })
+      .catch(() => {
+        if (mounted) setStatus('guest');
+      });
+
+    const unsubscribe = subscribeToFarmerAuth((authenticated) => {
+      if (mounted) setStatus(authenticated ? 'auth' : 'guest');
+    });
+
+    return () => {
+      mounted = false;
+      unsubscribe();
+    };
   }, []);
 
   if (status === 'loading') return (
