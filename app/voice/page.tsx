@@ -91,7 +91,7 @@ export default function VoicePage() {
 
   return (
     <AuthGuard>
-    <div className="min-h-screen relative overflow-hidden flex flex-col">
+    <div className="app-light min-h-screen relative overflow-hidden flex flex-col">
       <div className="orb w-64 h-64 -top-16 left-1/2 -translate-x-1/2" style={{ background: '#22c55e' }} />
 
       {/* Header */}
@@ -131,7 +131,7 @@ export default function VoicePage() {
             <div className="flex flex-wrap gap-2 justify-center mt-4">
               {['When to sow wheat?', 'Cure for yellowing leaves?', 'Organic fertilizers?'].map((hint) => (
                 <button key={hint} onClick={() => { const time = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }); setMessages((prev) => [...prev, { role: 'user', text: hint, time }]); sendToAI(hint); }}
-                  className="text-xs px-3 py-1.5 rounded-full" style={{ background: 'rgba(34,197,94,0.1)', color: '#4ade80', border: '1px solid rgba(34,197,94,0.2)' }}>
+                  className="text-xs px-3 py-1.5 rounded-full" style={{ background: 'rgba(220,252,231,0.72)', color: '#166534', border: '1px solid rgba(21,128,61,0.12)' }}>
                   {hint}
                 </button>
               ))}
@@ -149,7 +149,7 @@ export default function VoicePage() {
                 <div className="rounded-2xl px-4 py-3 text-sm"
                   style={msg.role === 'user'
                     ? { background: 'linear-gradient(135deg, #16a34a, #15803d)', color: '#ecfdf5', borderBottomRightRadius: 4 }
-                    : { background: 'rgba(255,255,255,0.05)', color: 'var(--text-primary)', border: '1px solid rgba(255,255,255,0.08)', borderBottomLeftRadius: 4 }}>
+                    : { background: 'rgba(255,255,255,0.82)', color: 'var(--text-primary)', border: '1px solid rgba(21,128,61,0.1)', borderBottomLeftRadius: 4, boxShadow: '0 10px 24px rgba(15,23,42,0.04)' }}>
                   {msg.text}
                 </div>
                 <p className="text-xs mt-1 px-1" style={{ color: 'var(--text-muted)', textAlign: msg.role === 'user' ? 'right' : 'left' }}>{msg.time}</p>
@@ -163,7 +163,7 @@ export default function VoicePage() {
           {(loading || interimText) && (
             <div className="flex justify-start page-enter">
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm mr-2" style={{ background: 'rgba(34,197,94,0.15)' }}>🤖</div>
-              <div className="rounded-2xl px-4 py-3" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div className="rounded-2xl px-4 py-3" style={{ background: 'rgba(255,255,255,0.82)', border: '1px solid rgba(21,128,61,0.1)', boxShadow: '0 10px 24px rgba(15,23,42,0.04)' }}>
                 {interimText ? <p className="text-sm italic" style={{ color: 'var(--text-muted)' }}>{interimText}...</p>
                   : <div className="flex gap-1 items-center py-1">{[0, 1, 2].map((d) => (<div key={d} className="w-2 h-2 rounded-full" style={{ background: '#4ade80', animation: `bounce 1s ${d * 0.2}s infinite` }} />))}</div>}
               </div>

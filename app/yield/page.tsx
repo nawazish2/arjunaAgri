@@ -74,7 +74,7 @@ export default function YieldPage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen relative overflow-hidden">
+      <div className="app-light min-h-screen relative overflow-hidden">
         <div className="orb w-72 h-72 -top-20 -right-20" style={{ background: '#f59e0b' }} />
         <div className="orb w-56 h-56 bottom-32 -left-16" style={{ background: '#22c55e', animationDelay: '2s' }} />
 

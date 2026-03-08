@@ -1,43 +1,268 @@
-# 🌾 Arjuna Agri — AI-Powered Precision Farming
+# Arjuna Agri
 
-An AI-powered farming platform that guides small Indian farmers through their entire crop cycle — from soil testing to market selling.
+Arjuna Agri is a hackathon web app built for the **Agriculture and AgriTech** theme. It combines AI-powered crop support with practical farm tools for Indian farmers, covering soil analysis, disease detection, irrigation planning, fertilizer calculation, yield estimation, market guidance, and profile-based farm management.
 
-## ✨ MVP Features
+## Theme Alignment
 
-| Feature | Route | Description |
-|---------|-------|-------------|
-| 👤 Farmer Registration | `/register` | Create profile (name, phone, village, state, language) |
-| 📊 Dashboard | `/` | View soil history, active crops, disease alerts |
-| 🌱 Soil Analysis + Crop Advice | `/soil` | Enter NPK/pH data → AI recommends 3 crops with cost breakdown + soil correction plan |
-| 🔬 Disease Detection | `/disease` | Upload crop photo → AI diagnoses disease with severity + organic/chemical treatment table |
-| 🎤 Voice Assistant | `/voice` | Speak farming questions → AI answers in English or Hindi via voice |
+**Hackathon theme:** Agriculture and AgriTech: Explore innovations in agriculture. Build tools or systems that can improve crop yield, farm management, or address food security challenges.
 
-## 🚀 Quick Start
+**How this project fits:**
 
-### 1. Clone & Install
+- improves crop decisions using soil-based AI recommendations
+- helps reduce crop loss with image-based disease detection
+- supports better farm management with irrigation, expenses, fertilizer, and ROI tools
+- improves accessibility with multilingual UI, voice interaction, and mobile-friendly design
 
-```bash
-git clone <repo-url>
-cd ArjunaAgri
-npm install
-```
+## What The Website Does
 
-### 2. Set up Environment Variables
+Arjuna Agri is a multi-page farming platform with a guest landing page and a signed-in farmer dashboard.
 
-Copy `.env.local` and fill in your keys:
+### Guest experience
+
+- Visiting `/` as a guest shows a landing page with product overview and feature highlights
+- Users can register from `/register`
+- Most farm tools are protected and require sign-in
+
+### Farmer experience
+
+After registration, the farmer can access:
+
+- dashboard with weather, pest alerts, latest soil report, and disease alerts
+- soil analysis workflow with AI crop recommendations
+- disease detection from plant photos
+- fertilizer calculator
+- crop calendar
+- market and government scheme reference
+- irrigation scheduler
+- yield and ROI predictor
+- expense tracker
+- voice assistant
+- profile page
+- support page
+- pricing page
+
+## Implemented Features
+
+### 1. Farmer registration and lightweight auth
+
+Route: `/register`
+
+- two-step registration flow
+- farmer identified by phone number
+- returning farmer sessions restored from stored profile
+- Supabase-backed when configured
+- localStorage fallback when Supabase is not configured
+
+### 2. Dashboard
+
+Route: `/`
+
+- guest landing page for non-signed-in users
+- logged-in dashboard for farmers
+- shows latest soil report and recommended crops
+- shows recent disease alerts
+- weather widget using browser geolocation
+- pest alert component
+- quick navigation to major tools
+
+### 3. Soil analysis and crop advice
+
+Route: `/soil`
+
+- manual input for nitrogen, phosphorus, potassium, pH, moisture, and location
+- optional preferred crop input
+- upload soil report as image or PDF
+- AI extracts NPK, pH, and moisture from uploaded report
+- AI returns:
+  - top crop recommendations
+  - expected yield
+  - cost estimates
+  - soil correction plan
+- downloadable PDF report
+- WhatsApp share flow
+- local soil history chart
+
+### 4. Plant disease detection
+
+Route: `/disease`
+
+- upload crop or plant image
+- AI analyzes image and identifies disease
+- returns severity, immediate actions, treatments, and prevention tips
+- stores result in Supabase or localStorage fallback
+
+### 5. Fertilizer calculator
+
+Route: `/fertilizer`
+
+- rule-based calculator for common crops
+- calculates Urea, DAP, MOP, and SSP quantities
+- includes estimated total cost
+- includes crop-specific deficiency view
+- includes application schedule
+
+### 6. Irrigation scheduler
+
+Route: `/irrigation`
+
+- stage-wise irrigation schedule by crop
+- choose crop and sowing date
+- shows next irrigation timing
+- highlights critical irrigation stages
+- includes water quantity guidance and crop notes
+
+### 7. Yield and ROI predictor
+
+Route: `/yield`
+
+- compares profitability across selected crops
+- uses acreage, soil quality, MSP, and indicative input costs
+- shows gross income, total cost, ROI, and break-even values
+
+### 8. Expense tracker
+
+Route: `/expenses`
+
+- tracks farm expenses by category
+- budget tracking
+- total spent, remaining budget, and per-acre spend
+- local seasonal cost visibility
+
+### 9. Crop calendar
+
+Route: `/calendar`
+
+- crop timing and seasonal planning interface
+- sowing and harvest guidance layout
+
+### 10. Market and schemes page
+
+Route: `/market`
+
+- MSP 2024-25 reference data for common crops
+- season filtering
+- farmer scheme cards with official links
+
+Note: this page currently uses built-in MSP and scheme data in the app rather than a live mandi API.
+
+### 11. Voice assistant
+
+Route: `/voice`
+
+- voice and text farming queries
+- short, voice-friendly responses
+- optional use of farmer soil context
+- speech recognition and speech synthesis in the browser
+
+### 12. Profile page
+
+Route: `/profile`
+
+- editable farmer details
+- profile stats for soil tests and disease scans
+- pincode lookup to auto-fill district and state
+- logout flow
+
+### 13. Support page
+
+Route: `/support`
+
+- support UI with FAQ and contact/help information
+- callback request form with ticket ID generation
+- support tabs for AI-style and human support layouts
+
+### 14. PWA support
+
+- offline fallback page at `/offline`
+- manifest and installable app setup
+- service worker generated via `next-pwa`
+
+## AI Features In The Codebase
+
+### AI-powered
+
+- crop recommendation from soil data
+- plant disease detection from image
+- soil report extraction from image or PDF
+- voice assistant responses
+
+### Non-AI calculator/planner features
+
+- fertilizer calculator
+- irrigation scheduler
+- yield and ROI predictor
+- expense tracker
+- market and scheme information
+- crop calendar
+
+## Tech Stack
+
+### Frontend
+
+- Next.js 14 App Router
+- React 18
+- TypeScript
+- Tailwind CSS
+- Chart.js and `react-chartjs-2`
+
+### AI and backend
+
+- Groq SDK with `llama-3.3-70b-versatile` for text responses
+- Google Gemini `gemini-flash-latest` for image and report analysis
+- Next.js API routes
+
+### Data and storage
+
+- Supabase PostgreSQL
+- localStorage fallback for local/offline-style usage
+
+### Other libraries
+
+- `pdfjs-dist` for PDF soil report parsing
+- `jspdf` for soil report export
+- `next-pwa` for PWA support
+
+## Authentication And Data Flow
+
+- authentication is lightweight and session-like, based on stored farmer profile data
+- no OTP flow is implemented
+- when Supabase is configured, farmer, soil, and disease data are saved there
+- when Supabase is not configured, the app falls back to localStorage for core flows
+
+## Multi-Language Support
+
+The UI includes translation support for:
+
+- English
+- Hindi
+- Telugu
+- Tamil
+- Marathi
+- Punjabi
+
+Language is stored in localStorage and can be changed from the navbar.
+
+## Environment Variables
+
+Create `.env.local` in the project root:
 
 ```env
-GEMINI_API_KEY=your_gemini_key_here
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url_here
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+GEMINI_API_KEY=your_gemini_api_key
+GROQ_API_KEY=your_groq_api_key
 ```
 
-- **Gemini API Key** (free): https://aistudio.google.com/apikey
-- **Supabase** (free): https://supabase.com → Create project → Settings → API
+Optional Gemini fallback keys:
 
-### 3. Set up Supabase Database
+```env
+GEMINI_API_KEY_2=your_second_key
+GEMINI_API_KEY_3=your_third_key
+```
 
-Run this SQL in your Supabase SQL editor:
+## Database Schema
+
+Run this in Supabase SQL editor:
 
 ```sql
 create table farmers (
@@ -75,24 +300,99 @@ create table disease_reports (
 );
 ```
 
-### 4. Run
+## Project Structure
+
+```text
+ArjunaAgri/
+├── app/
+│   ├── api/
+│   │   ├── crop-recommend/
+│   │   ├── disease-detect/
+│   │   ├── extract-soil/
+│   │   └── voice-chat/
+│   ├── calendar/
+│   ├── disease/
+│   ├── expenses/
+│   ├── fertilizer/
+│   ├── irrigation/
+│   ├── market/
+│   ├── offline/
+│   ├── pricing/
+│   ├── profile/
+│   ├── register/
+│   ├── soil/
+│   ├── support/
+│   ├── voice/
+│   ├── yield/
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── components/
+├── docs/
+├── lib/
+├── public/
+├── next.config.js
+├── package.json
+└── README.md
+```
+
+## Run Locally
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/nawazish2/arjunaAgri.git
+cd arjunaAgri
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Start development server
 
 ```bash
 npm run dev
 ```
 
-Open http://localhost:3000
+If file watcher issues happen on your machine, use:
 
-## 🛠️ Tech Stack
+```bash
+npm run dev:prod
+```
 
-- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
-- **AI**: Google Gemini 1.5 Flash (text + vision)
-- **Database**: Supabase (PostgreSQL)
-- **Voice**: Web Speech API (SpeechRecognition + speechSynthesis) — no extra API
+### 4. Build for production
 
-## 📱 Demo Flow
+```bash
+npm run build
+npm start
+```
 
-1. Open app → Register as farmer
-2. Go to **Soil** → Enter N:40, P:20, K:30, pH:6.8 → Get AI crop recommendations
-3. Go to **Disease** → Upload a photo of a plant → See disease diagnosis
-4. Go to **Voice** → Ask "When should I irrigate wheat?" → Hear the answer
+Open `http://localhost:3000`.
+
+## Demo Flow
+
+1. Open the app and register a farmer profile
+2. Go to `Soil Analysis` and either enter values manually or upload a soil report
+3. Generate crop recommendations and soil correction suggestions
+4. Open `Disease Detection` and upload a plant image
+5. Use `Fertilizer Calculator`, `Irrigation Scheduler`, and `Yield & ROI` for farm planning
+6. Open `Market & Schemes` to check MSP reference and scheme links
+7. Try the `Voice Assistant` for spoken farming advice
+
+## Notes
+
+- `.env.local` is intentionally not committed to GitHub
+- most feature pages require sign-in through the registration flow
+- the codebase includes a more detailed project document at `docs/DOCUMENTATION.md`
+
+## Hackathon Summary
+
+Arjuna Agri is a practical AgriTech prototype focused on:
+
+- crop yield improvement
+- better farm planning and decision support
+- easier access to agricultural tools for Indian farmers
+- multilingual, mobile-friendly farm assistance

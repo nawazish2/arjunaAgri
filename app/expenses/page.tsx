@@ -78,7 +78,7 @@ export default function ExpensesPage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen relative overflow-hidden">
+      <div className="app-light min-h-screen relative overflow-hidden">
         <div className="orb w-64 h-64 -top-16 -right-16" style={{ background: '#a78bfa' }} />
         <div className="orb w-56 h-56 bottom-32 -left-12" style={{ background: '#22c55e', animationDelay: '2s' }} />
 
