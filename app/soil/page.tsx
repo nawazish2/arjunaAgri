@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase, isSupabaseEnabled } from '@/lib/supabase';
+import { getActiveFarmerId, getActiveFarmerProfile } from '@/lib/farmer-auth';
 import type { CropRecommendation, SoilData } from '@/lib/types';
 import dynamic from 'next/dynamic';
 const SoilHistoryChart = dynamic(() => import('@/components/SoilHistoryChart'), { ssr: false });
@@ -101,14 +102,14 @@ export default function SoilPage() {
 
   useEffect(() => {
     const fetchFarmer = async () => {
-      const farmerId = localStorage.getItem('farmer_id');
+      const farmerId = await getActiveFarmerId();
       if (!farmerId) return;
       if (isSupabaseEnabled && supabase) {
         const { data } = await supabase.from('farmers').select('village, state').eq('id', farmerId).single();
         if (data) setForm((f) => ({ ...f, location: `${data.village}, ${data.state}` }));
       } else {
-        const profile = localStorage.getItem('farmer_profile');
-        if (profile) { const p = JSON.parse(profile); setForm((f) => ({ ...f, location: `${p.village}, ${p.state}` })); }
+        const profile = await getActiveFarmerProfile();
+        if (profile) setForm((f) => ({ ...f, location: `${profile.village}, ${profile.state}` }));
       }
     };
     fetchFarmer();
@@ -124,7 +125,7 @@ export default function SoilPage() {
       if (!res.ok) throw new Error('AI request failed');
       const data: CropRecommendation = await res.json();
       setResult(data);
-      const farmerId = localStorage.getItem('farmer_id');
+      const farmerId = await getActiveFarmerId();
       const report = { id: `local_${Date.now()}`, farmer_id: farmerId || '', ...form, recommendations: data, created_at: new Date().toISOString() };
       if (isSupabaseEnabled && supabase && farmerId) {
         await supabase.from('soil_reports').insert([{ farmer_id: farmerId, nitrogen: form.nitrogen, phosphorus: form.phosphorus, potassium: form.potassium, ph: form.ph, moisture: form.moisture, location: form.location, preferred_crop: form.preferred_crop || null, recommendations: data }]);
@@ -237,7 +238,7 @@ export default function SoilPage() {
   const tabs = [{ key: 'form', label: 'Input', icon: '📋' }, { key: 'crops', label: 'Crops', icon: '🌾' }, { key: 'correction', label: 'Fix Soil', icon: '🔧' }];
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="app-light min-h-screen relative overflow-hidden">
       <div className="orb w-72 h-72 -top-16 -right-16" style={{ background: '#22c55e' }} />
       <div className="orb w-48 h-48 bottom-24 -left-12" style={{ background: '#f59e0b', animationDelay: '2s' }} />
 
@@ -246,13 +247,13 @@ export default function SoilPage() {
         <p className="text-sm mb-5" style={{ color: 'var(--text-secondary)' }}>AI-powered crop recommendations from your soil data</p>
 
         {/* Tab Bar */}
-        <div className="flex gap-1 mb-5 p-1 rounded-2xl" style={{ background: 'rgba(6,26,13,0.8)', border: '1px solid rgba(34,197,94,0.15)' }}>
+        <div className="flex gap-1 mb-5 p-1 rounded-2xl" style={{ background: 'rgba(255,255,255,0.82)', border: '1px solid rgba(21,128,61,0.12)', boxShadow: '0 10px 28px rgba(15,23,42,0.05)' }}>
           {tabs.map((t) => (
             <button key={t.key} onClick={() => t.key !== 'form' && result ? setTab(t.key as Tab) : t.key === 'form' ? setTab('form') : null}
               className="flex-1 py-2.5 text-sm font-semibold rounded-xl transition-all flex items-center justify-center gap-1.5"
               style={{
                 background: tab === t.key ? '#22c55e' : 'transparent',
-                color: tab === t.key ? '#061a0d' : t.key !== 'form' && !result ? 'rgba(74,222,128,0.25)' : 'var(--text-muted)',
+                color: tab === t.key ? '#061a0d' : t.key !== 'form' && !result ? 'rgba(22,50,34,0.45)' : 'rgba(22,50,34,0.72)',
                 cursor: t.key !== 'form' && !result ? 'not-allowed' : 'pointer',
               }}>
               <span>{t.icon}</span> {t.label}
@@ -278,8 +279,8 @@ export default function SoilPage() {
               <label style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                 gap: 8, padding: '20px 16px', borderRadius: 12, cursor: 'pointer',
-                border: uploadFile ? '2px solid #7c3aed' : '2px dashed rgba(167,139,250,0.4)',
-                background: uploadFile ? 'rgba(99,102,241,0.08)' : 'rgba(99,102,241,0.04)',
+                border: uploadFile ? '2px solid #7c3aed' : '2px dashed rgba(124,58,237,0.24)',
+                background: uploadFile ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.92)',
                 transition: 'all 0.2s',
               }}>
                 <input
@@ -293,17 +294,17 @@ export default function SoilPage() {
                 ) : (
                   <span style={{ fontSize: 32 }}>{uploadFile ? '📑' : '📸'}</span>
                 )}
-                <span style={{ fontSize: 13, color: uploadFile ? '#a78bfa' : 'var(--text-muted)', fontWeight: 500, textAlign: 'center' }}>
+                <span style={{ fontSize: 13, color: uploadFile ? '#6d28d9' : 'rgba(22,50,34,0.62)', fontWeight: 600, textAlign: 'center' }}>
                   {uploadFile ? uploadFile.name : 'Tap to upload photo or PDF of soil report'}
                 </span>
                 {!uploadFile && (
-                  <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>JPG, PNG, PDF supported</span>
+                  <span style={{ fontSize: 11, color: 'rgba(22,50,34,0.5)' }}>JPG, PNG, PDF supported</span>
                 )}
               </label>
 
               {/* Extraction status */}
               {extracting && (
-                <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 8, color: '#a78bfa', fontSize: 13 }}>
+                <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 8, color: '#6d28d9', fontSize: 13, fontWeight: 600 }}>
                   <span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>⏳</span>
                   Analyzing report with Gemini AI…
                 </div>
@@ -312,7 +313,7 @@ export default function SoilPage() {
                 <div style={{
                   marginTop: 10, padding: '8px 12px', borderRadius: 8, fontSize: 12,
                   background: extractMsg.startsWith('✅') ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)',
-                  color: extractMsg.startsWith('✅') ? '#86efac' : '#fcd34d',
+                  color: extractMsg.startsWith('✅') ? '#166534' : '#b45309',
                   border: `1px solid ${extractMsg.startsWith('✅') ? 'rgba(34,197,94,0.3)' : 'rgba(245,158,11,0.3)'}`,
                 }}>
                   {extractMsg}
@@ -360,13 +361,13 @@ export default function SoilPage() {
               </div>
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: 'var(--text-muted)' }}>pH Level <span style={{ color: 'rgba(255,255,255,0.3)' }}>(0–14)</span></label>
+                  <label className="block text-xs font-semibold mb-1.5" style={{ color: 'var(--text-muted)' }}>pH Level <span style={{ color: 'rgba(22,50,34,0.42)' }}>(0–14)</span></label>
                   <input type="number" step="0.1" min={0} max={14} required value={form.ph}
                     onChange={(e) => setForm({ ...form, ph: parseFloat(e.target.value) || 7 })}
                     className="input-field" />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: 'var(--text-muted)' }}>Moisture <span style={{ color: 'rgba(255,255,255,0.3)' }}>(%)</span></label>
+                  <label className="block text-xs font-semibold mb-1.5" style={{ color: 'var(--text-muted)' }}>Moisture <span style={{ color: 'rgba(22,50,34,0.42)' }}>(%)</span></label>
                   <input type="number" min={0} max={100} required value={form.moisture}
                     onChange={(e) => setForm({ ...form, moisture: parseFloat(e.target.value) || 0 })}
                     className="input-field" />
@@ -432,7 +433,7 @@ export default function SoilPage() {
                     <p className="font-bold text-sm" style={{ color: '#fcd34d' }}>{crop.inputCostEstimate}</p>
                   </div>
                 </div>
-                <div className="rounded-xl p-3 mb-3" style={{ background: 'rgba(6,26,13,0.6)' }}>
+                  <div className="rounded-xl p-3 mb-3" style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(21,128,61,0.08)' }}>
                   <p className="text-xs font-semibold mb-1.5" style={{ color: 'var(--text-muted)' }}>💸 Cost Breakdown</p>
                   <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{crop.costBreakdown}</p>
                 </div>
@@ -442,11 +443,11 @@ export default function SoilPage() {
             {/* Share & Export */}
             <div className="flex gap-3">
               <button onClick={() => shareOnWhatsApp(form, result)} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold transition-all"
-                style={{ background: 'rgba(37,211,102,0.12)', color: '#25d366', border: '1px solid rgba(37,211,102,0.3)' }}>
+                style={{ background: 'rgba(37,211,102,0.1)', color: '#15803d', border: '1px solid rgba(21,128,61,0.18)' }}>
                 📲 Share on WhatsApp
               </button>
               <button onClick={() => downloadPDF(form, result)} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold transition-all"
-                style={{ background: 'rgba(96,165,250,0.12)', color: '#93c5fd', border: '1px solid rgba(96,165,250,0.3)' }}>
+                style={{ background: 'rgba(59,130,246,0.08)', color: '#1d4ed8', border: '1px solid rgba(59,130,246,0.16)' }}>
                 📄 Download PDF
               </button>
             </div>

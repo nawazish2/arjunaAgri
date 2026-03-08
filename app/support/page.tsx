@@ -62,7 +62,7 @@ export default function SupportPage() {
 
   return (
     <AuthGuard>
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
+      <div className="app-light min-h-screen max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
 
         {/* Header */}
         <div className="mb-8">
@@ -85,8 +85,8 @@ export default function SupportPage() {
             <button key={t.id} onClick={() => setTab(t.id)}
               className="flex-1 flex items-center gap-3 py-4 px-5 rounded-2xl font-bold text-sm transition-all text-left"
               style={{
-                background: tab === t.id ? `linear-gradient(135deg,${t.bg},transparent)` : 'rgba(6,26,13,0.5)',
-                border: `2px solid ${tab === t.id ? t.color : 'rgba(34,197,94,0.15)'}`,
+                background: tab === t.id ? `linear-gradient(135deg,${t.bg},transparent)` : 'rgba(255,255,255,0.86)',
+                border: `2px solid ${tab === t.id ? t.color : 'rgba(21,128,61,0.12)'}`,
                 color: tab === t.id ? t.color : 'var(--text-secondary)',
               }}>
               <span className="text-2xl">{t.icon}</span>

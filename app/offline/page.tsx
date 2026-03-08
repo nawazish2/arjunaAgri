@@ -1,7 +1,7 @@
 'use client';
 export default function OfflinePage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-8 text-center"
+    <div className="app-light min-h-screen flex flex-col items-center justify-center p-8 text-center"
       style={{ background: 'var(--bg)' }}>
       <div className="floating text-6xl mb-6">🌾</div>
       <h1 className="text-2xl font-bold gradient-text mb-3">You're Offline</h1>

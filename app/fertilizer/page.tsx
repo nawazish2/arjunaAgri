@@ -61,7 +61,7 @@ export default function FertilizerPage(){
 
   return (
     <AuthGuard>
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="app-light min-h-screen relative overflow-hidden">
       <div className="orb w-72 h-72 -top-16 -right-16" style={{background:'#22c55e'}}/>
       <div className="orb w-48 h-48 bottom-24 -left-12" style={{background:'#60a5fa',animationDelay:'2s'}}/>
       <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-8 page-enter">

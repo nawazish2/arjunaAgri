@@ -105,7 +105,7 @@ export default function IrrigationPage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen relative overflow-hidden">
+      <div className="app-light min-h-screen relative overflow-hidden">
         <div className="orb w-64 h-64 -top-16 -left-16" style={{ background: '#60a5fa' }} />
         <div className="orb w-56 h-56 bottom-32 -right-12" style={{ background: '#22c55e', animationDelay: '3s' }} />
 
