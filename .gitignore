@@ -8,3 +8,6 @@ tsconfig.tsbuildinfo
 public/sw.js
 public/workbox-*.js
 public/fallback-*.js
+/dist/
+.vinext/
+.cloudflare/
